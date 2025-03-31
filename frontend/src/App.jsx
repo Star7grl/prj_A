@@ -5,7 +5,8 @@ import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
 import ProfilePage from './pages/ProfilePage';
-import AdminPanelPage from './pages/AdminPanelPage'; // Новое: импорт админ-панели
+import AdminPanelPage from './pages/AdminPanelPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Импортируем страницу
 import Header from './components/Header';
 
 const App = () => {
@@ -19,7 +20,7 @@ const App = () => {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/admin" element={<AdminPanelPage />} />
-        {/* Добавьте это, чтобы перенаправлять с /login на / после авторизации */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Новый маршрут */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

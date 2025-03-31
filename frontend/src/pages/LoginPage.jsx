@@ -10,7 +10,6 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const { login, isAuth } = useUserStore();
 
-  // Эффект для перенаправления при успешной аутентификации
   useEffect(() => {
     if (isAuth) {
       navigate('/');
@@ -23,7 +22,6 @@ const LoginPage = () => {
 
     try {
       await login({ username, password });
-      // Если login завершился успешно, isAuth обновится, и эффект выполнит перенаправление
     } catch (error) {
       if (error.message.includes('Network Error') || !error.response) {
         setError('Проблемы с соединением. Проверьте CORS на сервере.');
@@ -71,6 +69,9 @@ const LoginPage = () => {
             
             <div className="register-link">
               Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
+            </div>
+            <div className="forgot-password-link">
+              <Link to="/forgot-password">Забыл пароль?</Link>
             </div>
           </form>
         </div>
