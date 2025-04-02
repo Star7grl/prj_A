@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Home.css';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -47,7 +48,7 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div>
+    <div className='home-page'>
       {step === 1 && (
         <div>
           <input
