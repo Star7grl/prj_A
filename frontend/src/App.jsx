@@ -1,32 +1,36 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
-import RoomsPage from './pages/RoomsPage';
 import ServicesPage from './pages/ServicesPage';
+import RoomsPage from './pages/RoomsPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPanelPage from './pages/AdminPanelPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage'; // Импортируем страницу
+import ServicesManagementPage from './pages/ServicesManagementPage';
+import RoomsManagementPage from './pages/RoomsManagementPage';  // Новый импорт
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import Header from './components/Header';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
-  return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/rooms" element={<RoomsPage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/admin" element={<AdminPanelPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Новый маршрут */}
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
-  );
+    return (
+        <Router>
+            <Header />
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/rooms" element={<RoomsPage />} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><AdminPanelPage /></ProtectedRoute>} />
+                <Route path="/admin/services" element={<ProtectedRoute><ServicesManagementPage /></ProtectedRoute>} />
+                <Route path="/admin/rooms" element={<ProtectedRoute><RoomsManagementPage /></ProtectedRoute>} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default App;

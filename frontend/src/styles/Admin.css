@@ -1,0 +1,313 @@
+/* Основные стили контейнера */
+.admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    color: #333;
+}
+
+/* Заголовок */
+.admin-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    text-align: center;
+    margin-top: 75px;
+}
+
+/* Подзаголовок */
+.admin-subtitle {
+    font-size: 1.1rem;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    color: #7f8c8d;
+    text-align: center;
+}
+
+/* Контейнер для кнопок */
+.admin-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Стили кнопок */
+.admin-button {
+    width: 100%;
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background-color: #3498db;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+/* Ссылки */
+.admin-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Эффекты при наведении */
+.admin-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.admin-button:active {
+    transform: translateY(0);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 600px) {
+    .admin-container {
+        padding: 30px 15px;
+    }
+    
+    .admin-title {
+        font-size: 2rem;
+    }
+    
+    .admin-subtitle {
+        font-size: 1rem;
+    }
+    
+    .admin-buttons {
+        gap: 15px;
+    }
+}
+
+/* Стили для страницы управления услугами */
+.services-management {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.admin-section-title {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin:75px 0 30px;
+    text-align: center;
+    font-weight: 400;
+    border-bottom: 1px solid #ecf0f1;
+    padding-bottom: 15px;
+}
+
+.admin-subsection-title {
+    font-size: 1.3rem;
+    color: #34495e;
+    margin: 25px 0 15px;
+    font-weight: 400;
+}
+
+.admin-form-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.admin-edit-form {
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+}
+
+.admin-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.admin-input {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.admin-input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.admin-form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-table-container {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    padding: 15px;
+    text-align: left;
+    font-weight: 500;
+    color: #34495e;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.admin-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ecf0f1;
+    vertical-align: middle;
+}
+
+.admin-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Кнопки */
+.admin-button-primary {
+    background-color: #3498db !important;
+}
+
+.admin-button-save {
+    background-color: #2ecc71 !important;
+}
+
+.admin-button-edit {
+    background-color: #f39c12 !important;
+}
+
+.admin-button-delete {
+    background-color: #e74c3c !important;
+}
+
+.admin-button-cancel {
+    background-color: #95a5a6 !important;
+}
+
+/* Загрузка */
+.admin-loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+}
+
+/* Адаптация */
+@media (max-width: 767px) {
+    .admin-container, 
+    .services-management {
+        padding: 20px 15px;
+    }
+    
+    .admin-title,
+    .admin-section-title {
+        font-size: 1.8rem;
+        padding-bottom: 10px;
+    }
+    
+    .admin-subtitle,
+    .admin-subsection-title {
+        font-size: 1.1rem;
+        margin: 15px 0 10px;
+    }
+    
+    /* Формы */
+    .admin-form,
+    .admin-form-actions {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .admin-form-container {
+        padding: 15px;
+    }
+    
+    /* Кнопки */
+    .admin-button {
+        padding: 12px 15px;
+        font-size: 0.9rem;
+    }
+    
+    /* Таблица */
+    .admin-table-container {
+        padding: 10px;
+        border-radius: 8px;
+    }
+    
+    .admin-table {
+        font-size: 0.85rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 8px 10px;
+    }
+    
+    .admin-table th:nth-child(2),
+    .admin-table td:nth-child(2) {
+        min-width: 120px;
+    }
+    
+    /* Специфические адаптации для очень маленьких экранов */
+    @media (max-width: 360px) {
+        .admin-actions {
+            flex-direction: column;
+        }
+        
+        .admin-table th:nth-child(1),
+        .admin-table td:nth-child(1) {
+            display: none;
+        }
+        
+        .admin-buttons {
+            max-width: 100%;
+        }
+    }
+    
+    /* Оптимизация для 320px */
+    @media (max-width: 320px) {
+        .admin-title,
+        .admin-section-title {
+            font-size: 1.5rem;
+        }
+        
+        .admin-input {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .admin-table {
+            font-size: 0.8rem;
+        }
+        
+        .admin-table td:nth-child(3) {
+            min-width: 60px;
+        }
+    }
+}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/UserStore';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../config/apiClient';
+import '../styles/Home.css';
 
 const ProfilePage = () => {
   const { user, setUser } = useUserStore();
