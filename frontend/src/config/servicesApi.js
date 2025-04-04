@@ -26,7 +26,7 @@ const ServicesApi = {
   
     updateService: async (id, serviceData) => {
       try {
-        const response = await apiClient.put(`/api/services/${id}`, serviceData);
+        const response = await apiClient.put(`/api/services/update/${id}`, serviceData);
         return response.data;
       } catch (error) {
         throw error;
