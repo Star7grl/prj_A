@@ -218,6 +218,33 @@
     color: #7f8c8d;
 }
 
+
+.rooms-management {
+    padding: 20px;
+  }
+  
+  .rooms-management form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+    margin-bottom: 20px;
+  }
+  
+  .rooms-management input,
+  .rooms-management select {
+    padding: 8px;
+  }
+  
+  .rooms-management button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
 /* Адаптация */
 @media (max-width: 767px) {
     .admin-container, 

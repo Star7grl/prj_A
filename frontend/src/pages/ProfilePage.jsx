@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useUserStore from '../store/UserStore';
 import { useNavigate } from 'react-router-dom';
 import apiClient from '../config/apiClient';
+import BookingsApi from '../config/BookingsApi';
 import '../styles/Home.css';
 
 const ProfilePage = () => {
@@ -9,16 +10,26 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
-  const [isEditing, setIsEditing] = useState(false); // Состояние для режима редактирования
+  const [isEditing, setIsEditing] = useState(false);
+  const [bookings, setBookings] = useState([]);
 
   useEffect(() => {
     if (user && user.role === 'ROLE_ADMIN') {
       navigate('/admin');
     }
+    const fetchBookings = async () => {
+      try {
+        const data = await BookingsApi.fetchUserBookings(user.id);
+        setBookings(data);
+      } catch (error) {
+        console.error('Ошибка загрузки броней:', error);
+      }
+    };
+    fetchBookings();
   }, [user, navigate]);
 
   const handleEdit = () => {
-    setIsEditing(true); // Включаем режим редактирования
+    setIsEditing(true);
   };
 
   const handleSave = async () => {
@@ -29,18 +40,8 @@ const ProfilePage = () => {
       }, { withCredentials: true });
       setUser(response.data);
       console.log('Профиль успешно обновлен:', response.data);
-      setIsEditing(false); // Выключаем режим редактирования после сохранения
+      setIsEditing(false);
     } catch (error) {
-      if (error.response) {
-        console.error('Ошибка ответа сервера:', error.response.data);
-        if (error.response.status === 403) {
-          alert('У вас нет прав для редактирования этого профиля');
-        }
-      } else if (error.request) {
-        console.error('Сетевой запрос не выполнен:', error.request);
-      } else {
-        console.error('Ошибка:', error.message);
-      }
       console.error('Ошибка при обновлении профиля:', error);
     }
   };
@@ -58,7 +59,7 @@ const ProfilePage = () => {
           type="text"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
-          disabled={!isEditing} // Поле активно только в режиме редактирования
+          disabled={!isEditing}
         />
       </div>
       <div>
@@ -67,7 +68,7 @@ const ProfilePage = () => {
           type="text"
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
-          disabled={!isEditing} // Поле активно только в режиме редактирования
+          disabled={!isEditing}
         />
       </div>
       {isEditing ? (
@@ -76,6 +77,15 @@ const ProfilePage = () => {
         <button onClick={handleEdit}>Редактировать</button>
       )}
       <p>Email: {user.email}</p>
+
+      <h3>Ваши бронирования</h3>
+      <ul>
+        {bookings.map((booking) => (
+          <li key={booking.bookingId}>
+            Комната: {booking.room.roomTitle}, Дата заезда: {booking.checkInDate}, Дата выезда: {booking.checkOutDate}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

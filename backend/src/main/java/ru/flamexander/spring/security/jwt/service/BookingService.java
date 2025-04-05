@@ -3,11 +3,7 @@ package ru.flamexander.spring.security.jwt.service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.flamexander.spring.security.jwt.dtos.BookingDto;
-import ru.flamexander.spring.security.jwt.dtos.RoomDto;
 import ru.flamexander.spring.security.jwt.dtos.ServiceDto;
 import ru.flamexander.spring.security.jwt.entities.Booking;
 import ru.flamexander.spring.security.jwt.entities.Room;
@@ -42,62 +38,73 @@ public class BookingService {
         this.roomService = roomService;
     }
 
-    // В файле BookingService.java
-
     public Booking createBooking(BookingDto bookingDto) {
         Booking booking = modelMapper.map(bookingDto, Booking.class);
 
-        // Проверяем существование пользователя
         User user = userService.findById(bookingDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
 
-        // Проверяем существование услуги
-        ServiceDto serviceDto = serviceService.findById(bookingDto.getServiceId());
-        Services service = modelMapper.map(serviceDto, Services.class);
+        Optional<Room> roomOptional = roomService.getRoomById(bookingDto.getRoomId());
+        Room room = roomOptional.orElseThrow(() -> new ResourceNotFoundException("Комната не найдена"));
 
-        // Проверяем существование комнаты и преобразуем RoomDto в Room
-        Optional<Room> roomOptional = roomService.findById(bookingDto.getRoomId());
-        Room room = roomOptional.orElseThrow(() ->
-                new ResourceNotFoundException("Комната не найдена"));
+        // Проверка, что комната свободна
+        if (!"FREE".equals(room.getStatus())) {
+            throw new RoomAlreadyBookedException("Комната уже забронирована или недоступна");
+        }
 
-        // Проверка на занятость комнаты
+        // Проверка дат
+        if (bookingDto.getCheckInDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Дата заезда не может быть в прошлом");
+        }
+        if (bookingDto.getCheckOutDate().isBefore(bookingDto.getCheckInDate())) {
+            throw new IllegalArgumentException("Дата выезда не может быть раньше даты заезда");
+        }
         if (isRoomBooked(room.getRoomId(), bookingDto.getCheckInDate(), bookingDto.getCheckOutDate())) {
-            throw new RoomAlreadyBookedException("Room is already booked for the specified dates.");
+            throw new RoomAlreadyBookedException("Комната уже забронирована на указанные даты");
+        }
+
+        Services service = null;
+        if (bookingDto.getServiceId() != null) {
+            ServiceDto serviceDto = serviceService.findById(bookingDto.getServiceId());
+            service = modelMapper.map(serviceDto, Services.class);
         }
 
         booking.setUser(user);
-        booking.setService(service);
         booking.setRoom(room);
+        booking.setService(service);
 
-        return bookingRepository.save(booking);
+        // Сохранение бронирования
+        Booking savedBooking = bookingRepository.save(booking);
+
+        // Обновление статуса комнаты на "BOOKED"
+        room.setStatus("BOOKED");
+        roomService.updateRoom(room);
+
+        return savedBooking;
     }
 
-
     public Booking updateBooking(Booking booking) {
-        // Проверяем существование бронирования
         Booking existingBooking = bookingRepository.findById(booking.getBookingId())
-                .orElseThrow(() -> new ResourceNotFoundException("Бронироавние не найдено"));
+                .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
 
-        // Проверяем существование пользователя
         User user = userService.findById(booking.getUser().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден"));
 
-        // Проверяем существование услуги
-        ServiceDto serviceDto = serviceService.findById(booking.getService().getServiceId());
-        Services service = modelMapper.map(serviceDto, Services.class);
+        Optional<Room> roomOptional = roomService.getRoomById(booking.getRoom().getRoomId());
+        Room room = roomOptional.orElseThrow(() -> new ResourceNotFoundException("Комната не найдена"));
 
-        // Проверяем существование комнаты
-        Optional<Room> roomOptional = roomService.findById(booking.getRoom().getRoomId());
-        Room room = roomOptional.orElseThrow(() ->
-                new ResourceNotFoundException("Комната не найдена"));
+        Services service = null;
+        if (booking.getService() != null) {
+            ServiceDto serviceDto = serviceService.findById(booking.getService().getServiceId());
+            service = modelMapper.map(serviceDto, Services.class);
+        }
 
         booking.setUser(user);
-        booking.setService(service);
         booking.setRoom(room);
+        booking.setService(service);
 
         return bookingRepository.save(booking);
     }
-
 
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
@@ -107,25 +114,25 @@ public class BookingService {
         return bookingRepository.findById(id);
     }
 
-    public boolean isRoomBooked(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
-        return !bookingRepository
-                .findAllByRoom_RoomIdAndCheckInDateGreaterThanEqualAndCheckOutDateLessThanEqual(
-                        roomId,
-                        checkInDate,
-                        checkOutDate
-                )
-                .isEmpty();
+    public List<Booking> getUserBookings(Long userId) {
+        return bookingRepository.findAll().stream()
+                .filter(b -> b.getUser().getId().equals(userId))
+                .toList();
     }
 
+    public boolean isRoomBooked(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
+        List<Booking> bookings = bookingRepository.findAllByRoom_RoomIdAndCheckInDateGreaterThanEqualAndCheckOutDateLessThanEqual(
+                roomId, checkInDate.minusDays(1), checkOutDate.plusDays(1));
+        return bookings.stream().anyMatch(b ->
+                !(b.getCheckOutDate().isBefore(checkInDate) || b.getCheckInDate().isAfter(checkOutDate)));
+    }
 
-    // В файле BookingController.java
-    // В файле BookingService.java
     public void deleteBooking(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
+        Room room = booking.getRoom();
         bookingRepository.delete(booking);
+        room.setStatus("FREE");
+        roomService.updateRoom(room);
     }
-
-
-
 }

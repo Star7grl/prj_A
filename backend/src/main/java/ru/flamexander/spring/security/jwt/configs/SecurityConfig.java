@@ -1,6 +1,5 @@
 package ru.flamexander.spring.security.jwt.configs;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +7,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,14 +21,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ru.flamexander.spring.security.jwt.service.UserService;
-
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtRequestFilter jwtRequestFilter;
@@ -42,8 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwtRequestFilter = jwtRequestFilter;
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
@@ -54,21 +49,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/public/**").permitAll()
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/services/**").permitAll() // Доступ для всех к сервисам
-                .antMatchers("/api/admin/**").hasRole("ADMIN") // Доступ только для админов
+                .antMatchers("/api/services/**").permitAll()
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .antMatchers("/private/**").authenticated()
                 .antMatchers("/api/auth/me").authenticated()
                 .antMatchers("/api/users/profile/**").authenticated()
+                .antMatchers("/api/bookings/user/**").authenticated()
+                .antMatchers("/api/bookings/add").authenticated()
+                .antMatchers("/api/rooms/admin").permitAll() // Явно разрешаем доступ к /api/rooms/admin
+                .antMatchers("/api/rooms/**").permitAll()    // Разрешаем доступ ко всем /api/rooms/**
+                .antMatchers("/api/rooms/add").hasRole("ADMIN")
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(daoAuthenticationProvider());
+        return http.build();
     }
 
     @Bean

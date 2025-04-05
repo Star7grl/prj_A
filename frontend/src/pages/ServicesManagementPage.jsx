@@ -7,22 +7,22 @@ import "../styles/Pagination.css";
 const ServicesManagementPage = () => {
   const [services, setServices] = useState([]); // Начальное значение — пустой массив
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ serviceName: "", servicePrice: "" });
+  const [formData, setFormData] = useState({ serviceName: "", servicePrice: "", imageUrl: "" }); // Добавлено imageUrl
   const [editingService, setEditingService] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0); // Исправлено: "О" заменено на "o"
+  const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const data = await ServicesApi.getAllServices(currentPage, itemsPerPage);
-        setServices(data.services); // Устанавливаем только массив услуг
-        setTotalItems(data.total);  // Устанавливаем общее количество, если нужно
+        setServices(data.services);
+        setTotalItems(data.total);
       } catch (error) {
         console.error("Ошибка загрузки услуг:", error);
       } finally {
-        setLoading(false); // Убираем индикатор загрузки
+        setLoading(false);
       }
     };
     fetchServices();
@@ -53,9 +53,10 @@ const ServicesManagementPage = () => {
       const newService = await ServicesApi.createService({
         serviceName: formData.serviceName,
         servicePrice: parseFloat(formData.servicePrice),
+        imageUrl: formData.imageUrl, // Передаем imageUrl
       });
       setServices([...services, newService]);
-      setFormData({ serviceName: "", servicePrice: "" });
+      setFormData({ serviceName: "", servicePrice: "", imageUrl: "" }); // Очищаем форму
       setTotalItems(totalItems + 1);
     } catch (error) {
       console.error("Ошибка создания услуги:", error);
@@ -73,6 +74,7 @@ const ServicesManagementPage = () => {
       const updatedService = await ServicesApi.updateService(editingService.serviceId, {
         serviceName: editingService.serviceName,
         servicePrice: parseFloat(editingService.servicePrice),
+        imageUrl: editingService.imageUrl, // Передаем imageUrl
       });
       setServices(services.map((s) => (s.serviceId === updatedService.serviceId ? updatedService : s)));
       setEditingService(null);
@@ -109,6 +111,14 @@ const ServicesManagementPage = () => {
             step="0.01"
             required
           />
+          <input
+            type="text"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleInputChange}
+            placeholder="URL картинки"
+            className="admin-input"
+          />
           <button type="submit" className="admin-button admin-button-primary">
             Добавить услугу
           </button>
@@ -138,6 +148,14 @@ const ServicesManagementPage = () => {
               step="0.01"
               required
             />
+            <input
+              type="text"
+              name="imageUrl"
+              value={editingService.imageUrl || ""}
+              onChange={handleEditInputChange}
+              placeholder="URL картинки"
+              className="admin-input"
+            />
             <div className="admin-form-actions">
               <button type="submit" className="admin-button admin-button-save">
                 Сохранить изменения
@@ -162,6 +180,7 @@ const ServicesManagementPage = () => {
               <th>ID</th>
               <th>Название</th>
               <th>Цена</th>
+              <th>Картинка</th> {/* Новый столбец для URL */}
               <th>Действия</th>
             </tr>
           </thead>
@@ -172,6 +191,7 @@ const ServicesManagementPage = () => {
                   <td>{service.serviceId}</td>
                   <td>{service.serviceName}</td>
                   <td>{service.servicePrice.toFixed(2)} ₽</td>
+                  <td>{service.imageUrl ? <a href={service.imageUrl} target="_blank">Ссылка</a> : "Нет"}</td>
                   <td className="admin-actions">
                     <button
                       onClick={() => setEditingService(service)}

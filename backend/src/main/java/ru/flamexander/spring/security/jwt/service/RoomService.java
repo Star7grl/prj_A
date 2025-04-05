@@ -1,6 +1,8 @@
 package ru.flamexander.spring.security.jwt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.flamexander.spring.security.jwt.dtos.RoomDto;
 import ru.flamexander.spring.security.jwt.entities.Room;
@@ -12,11 +14,15 @@ import java.util.Optional;
 
 @Service
 public class RoomService {
-    private RoomRepository roomRepository;
+    private final RoomRepository roomRepository;
 
     @Autowired
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
+    }
+
+    public Page<Room> getAllRooms(Pageable pageable) {
+        return roomRepository.findAll(pageable);
     }
 
     public List<Room> getAllRooms() {
@@ -29,52 +35,30 @@ public class RoomService {
 
     public Room createRoom(RoomDto roomDto) {
         Room room = new Room();
-        room.setRoomTitle(roomDto.getRoomTitle()); // Добавьте эту строку
+        room.setRoomTitle(roomDto.getRoomTitle());
         room.setRoomType(roomDto.getRoomType());
         room.setDescription(roomDto.getDescription());
         room.setPrice(roomDto.getPrice());
         room.setStatus(roomDto.getStatus());
+        room.setImageUrl(roomDto.getImageUrl()); // Сохранение URL изображения
         return roomRepository.save(room);
-    }
-
-
-    @Autowired
-    public void setRoomRepository(RoomRepository roomRepository) {
-        this.roomRepository = roomRepository;
-    }
-
-    public List<Room> findAll() {
-        return roomRepository.findAll();
-    }
-
-    public Optional<Room> findById(Long id) {
-        return roomRepository.findById(id);
-    }
-
-    public List<Room> findByRoomType(String roomType) {
-        return roomRepository.findByRoomType(roomType);
     }
 
     @Transactional
-    public Room createNewRoom(RoomDto roomDto) {
-        Room room = new Room();
-        room.setRoomType(roomDto.getRoomType());
-        room.setDescription(roomDto.getDescription());
-        room.setPrice(roomDto.getPrice());
-        room.setStatus(roomDto.getStatus());
-        return roomRepository.save(room);
+    public Room updateRoom(Room room) {
+        return roomRepository.save(room); // Обновление комнаты, включая статус
     }
 
     @Transactional
     public Room updateRoom(Long id, RoomDto roomDto) {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Не найдена комната с айдишником: " + id));
-
         room.setRoomTitle(roomDto.getRoomTitle());
         room.setRoomType(roomDto.getRoomType());
         room.setDescription(roomDto.getDescription());
         room.setPrice(roomDto.getPrice());
         room.setStatus(roomDto.getStatus());
+        room.setImageUrl(roomDto.getImageUrl()); // Обновление URL изображения
         return roomRepository.save(room);
     }
 
@@ -95,6 +79,7 @@ public class RoomService {
         }
     }
 
-
-
+    public Page<Room> getAvailableRooms(Pageable pageable) {
+        return roomRepository.findByStatusNot("HIDDEN", pageable);
+    }
 }

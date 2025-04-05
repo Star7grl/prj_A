@@ -3,18 +3,20 @@ package ru.flamexander.spring.security.jwt.controllers;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.flamexander.spring.security.jwt.dtos.BookingDto;
 import ru.flamexander.spring.security.jwt.entities.Booking;
-import ru.flamexander.spring.security.jwt.entities.Services;
 import ru.flamexander.spring.security.jwt.exceptions.ResourceNotFoundException;
+import ru.flamexander.spring.security.jwt.exceptions.RoomAlreadyBookedException;
 import ru.flamexander.spring.security.jwt.service.BookingService;
-import ru.flamexander.spring.security.jwt.exceptions.RoomAlreadyBookedException; ///
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class BookingController {
     private final BookingService bookingService;
     private final ModelMapper modelMapper;
@@ -30,11 +32,16 @@ public class BookingController {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
     }
 
-    //localhost:8080/api/bookings/add
     @PostMapping("/add")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Booking createBooking(@RequestBody BookingDto bookingDto) {
-        return bookingService.createBooking(bookingDto);
+    public ResponseEntity<Booking> createBooking(@RequestBody BookingDto bookingDto) {
+        try {
+            Booking booking = bookingService.createBooking(bookingDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(booking);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null); // Комната уже забронирована
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PutMapping("/update/{id}")
@@ -50,13 +57,8 @@ public class BookingController {
         bookingService.deleteBooking(id);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<Booking> getUserBookings(@PathVariable Long userId) {
+        return bookingService.getUserBookings(userId);
+    }
 }
-
-
-
-
-
-
-
-
-
