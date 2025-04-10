@@ -1,10 +1,7 @@
 package ru.flamexander.spring.security.jwt.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,15 +15,16 @@ import ru.flamexander.spring.security.jwt.entities.User;
 import ru.flamexander.spring.security.jwt.repositories.UserRepository;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService; // Добавляем EmailService
+    private final EmailService emailService;
 
     @Value("${admin.username}")
     private String adminUsername;
@@ -124,36 +122,44 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
-    // Новые методы для восстановления пароля
-    public boolean sendResetCode(String email) {
+    // Методы для восстановления пароля через токен
+    public boolean sendResetToken(String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            String code = generateRandomCode();
-            user.setResetCode(code);
+            String token = UUID.randomUUID().toString();
+            user.setResetToken(token);
+            user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(10)); // Срок действия 10 минут
             userRepository.save(user);
-            emailService.sendResetCode(email, code);
+            emailService.sendResetLink(email, token);
             return true;
         }
         return false;
     }
 
-    public boolean verifyResetCode(String email, String code) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        return optionalUser.isPresent() && code.equals(optionalUser.get().getResetCode());
-    }
-
-    public void resetPassword(String email, String newPassword) {
-        Optional<User> optionalUser = userRepository.findByEmail(email);
+    public boolean validateResetToken(String token) {
+        Optional<User> optionalUser = userRepository.findByResetToken(token);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setPassword(passwordEncoder.encode(newPassword));
-            user.setResetCode(null); // Очищаем код после использования
-            userRepository.save(user);
+            return user.getResetTokenExpiry() != null && user.getResetTokenExpiry().isAfter(LocalDateTime.now());
         }
+        return false;
     }
 
-    private String generateRandomCode() {
-        return String.format("%06d", new Random().nextInt(999999));
+    public void resetPassword(String token, String newPassword) {
+        Optional<User> optionalUser = userRepository.findByResetToken(token);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getResetTokenExpiry() != null && user.getResetTokenExpiry().isAfter(LocalDateTime.now())) {
+                user.setPassword(passwordEncoder.encode(newPassword));
+                user.setResetToken(null); // Очищаем токен после использования
+                user.setResetTokenExpiry(null);
+                userRepository.save(user);
+            } else {
+                throw new RuntimeException("Токен просрочен");
+            }
+        } else {
+            throw new RuntimeException("Недействительный токен");
+        }
     }
 }

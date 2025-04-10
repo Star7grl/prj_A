@@ -9,6 +9,7 @@ import AdminPanelPage from './pages/AdminPanelPage';
 import ServicesManagementPage from './pages/ServicesManagementPage';
 import RoomsManagementPage from './pages/RoomsManagementPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage'; // Новый импорт
 import RoomDetailPage from './pages/RoomDetailPage';
 import BookingPage from './pages/BookingPage';
 import Header from './components/Header';
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/admin/services" element={<ProtectedRoute><ServicesManagementPage /></ProtectedRoute>} />
         <Route path="/admin/rooms" element={<ProtectedRoute><RoomsManagementPage /></ProtectedRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} /> {/* Новый маршрут */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

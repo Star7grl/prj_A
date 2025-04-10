@@ -8,6 +8,11 @@ export const useUserStore = create((set, get) => ({
 
   // Проверка аутентификации при загрузке
   checkAuth: async () => {
+    // Проверяем, что мы не на странице сброса пароля
+    if (window.location.pathname === '/reset-password') {
+      set({ isLoading: false });
+      return;
+    }
     try {
       const response = await apiClient.get('/api/auth/me');
       if (response.status === 200) {

@@ -5,83 +5,36 @@ import '../styles/Home.css';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [step, setStep] = useState(1); // 1: email, 2: код, 3: новый пароль
   const navigate = useNavigate();
 
   const apiClient = axios.create({
-    baseURL: 'http://localhost:8080', // Укажи свой URL
+    baseURL: 'http://localhost:8080',
     headers: { 'Content-Type': 'application/json' },
   });
 
-  const handleSendCode = async () => {
+  const handleSendResetLink = async () => {
     try {
       const response = await apiClient.post('/api/auth/forgot-password', { email });
       if (response.status === 200) {
-        setStep(2);
+        alert('Ссылка для сброса пароля отправлена на вашу почту');
+        navigate('/login');
       }
     } catch (error) {
-      alert('Ошибка: ' + error.response.data);
-    }
-  };
-
-  const handleVerifyCode = async () => {
-    try {
-      const response = await apiClient.post('/api/auth/verify-code', { email, code });
-      if (response.status === 200) {
-        setStep(3);
-      }
-    } catch (error) {
-      alert('Неверный код');
-    }
-  };
-
-  const handleResetPassword = async () => {
-    try {
-      await apiClient.post('/api/auth/reset-password', { email, newPassword });
-      alert('Пароль обновлен');
-      navigate('/login');
-    } catch (error) {
-      alert('Ошибка при обновлении пароля');
+      alert('Ошибка: ' + (error.response?.data || 'Неизвестная ошибка'));
     }
   };
 
   return (
-    <div className='home-page'>
-      {step === 1 && (
-        <div>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Введите вашу почту"
-          />
-          <button onClick={handleSendCode}>Отправить код</button>
-        </div>
-      )}
-      {step === 2 && (
-        <div>
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="Введите код"
-          />
-          <button onClick={handleVerifyCode}>Проверить код</button>
-        </div>
-      )}
-      {step === 3 && (
-        <div>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Введите новый пароль"
-          />
-          <button onClick={handleResetPassword}>Сохранить</button>
-        </div>
-      )}
+    <div className="home-page">
+      <div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Введите вашу почту"
+        />
+        <button onClick={handleSendResetLink}>Отправить ссылку для сброса</button>
+      </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@ package ru.flamexander.spring.security.jwt.entities;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -32,6 +33,9 @@ public class User {
     @Column(name = "lastName")
     private String lastName;
 
-    @Column(name = "resetCode") // Новое поле для кода восстановления
-    private String resetCode;
+    @Column(name = "resetToken") // Заменяем resetCode на resetToken
+    private String resetToken;
+
+    @Column(name = "resetTokenExpiry") // Добавляем срок действия токена
+    private LocalDateTime resetTokenExpiry;
 }
