@@ -1,12 +1,25 @@
-// Home.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/Home.css';
 import { Carousel } from 'react-bootstrap';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
+import apiClient from '../config/apiClient'; // Предполагается, что apiClient настроен для запросов
 
 const Home = () => {
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const response = await apiClient.get('/api/rooms/home');
+        setRooms(response.data);
+      } catch (error) {
+        console.error('Ошибка загрузки комнат:', error);
+      }
+    };
+    fetchRooms();
+  }, []);
+
   return (
     <div className="home-page">
       {/* Hero секция */}
@@ -25,43 +38,21 @@ const Home = () => {
             <Link className="live__link" to="/rooms">Смотреть все</Link>
           </div>
           <div className="live__bottom-content live-cards">
-            {[
-              {
-                id: 1,
-                img: "/img/live_card-image.png",
-                title: "Одноместный стандарт",
-                desc: "Однокомнатный номер, без балкона, корпус 1, этаж 1. Площадь номера 19 м2",
-                price: "7 380"
-              },
-              {
-                id: 2,
-                img: "/img/live_card-image3.png",
-                title: "Двуместный стандарт",
-                desc: "Однокомнатный номер с выходом на террасу, корпус 5. Площадь номера 19 м2.",
-                price: "7 380"
-              },
-              {
-                id: 3,
-                img: "/img/live_card-image8.png",
-                title: "Семейный",
-                desc: "Двухкомнатный номер с балконом, корпус 2. Площадь номера 37 м2.",
-                price: "7 380"
-              }
-            ].map(room => (
-              <div className="card__item" key={room.id}>
-                <img src={room.img} alt={room.title} />
+            {rooms.map(room => (
+              <div className="card__item" key={room.roomId}>
+                <img src={room.imageUrl} alt={room.roomTitle} />
                 <div className="card-text">
                   <div className="card-title">
-                    <h3>{room.title}</h3>
+                    <h3>{room.roomTitle}</h3>
                     <div className="rating">
                       <img src="/img/star-icon.png" alt="Рейтинг" />
                       <p>5.0</p>
                     </div>
                   </div>
-                  <p>{room.desc}</p>
+                  <p>{room.description}</p>
                   <p className="card-text__price">от <span>{room.price}</span> руб/сутки</p>
                 </div>
-                <Link to="/basket" className="card-btn">ЗАБРОНИРОВАТЬ</Link>
+                <Link to={`/rooms/${room.roomId}`} className="card-btn">ЗАБРОНИРОВАТЬ</Link>
               </div>
             ))}
           </div>
@@ -128,15 +119,6 @@ const Home = () => {
               <p>lesnaya_dolina@mail.com</p>
             </div>
           </div>
-          {/* <div className="maps">
-            <iframe 
-              title="Яндекс Карта"
-              src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A29177a24607efd86d64ea0b772c244c86308c456a349d9fe6c4fa861e76eb789&amp;width=300&amp;height=369&amp;lang=ru_RU&amp;scroll=true"
-              width="300" 
-              height="369" 
-              frameBorder="0"
-            ></iframe>
-          </div> */}
         </div>
       </section>
     </div>

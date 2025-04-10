@@ -26,6 +26,14 @@ public class RoomController {
         this.roomService = roomService;
     }
 
+    // Новый метод для получения трех комнат для главной страницы
+    @GetMapping("/home")
+    public ResponseEntity<List<Room>> getThreeRooms() {
+        Pageable pageable = PageRequest.of(0, 3); // Первая страница с 3 комнатами
+        Page<Room> roomsPage = roomService.getAvailableRooms(pageable);
+        return ResponseEntity.ok(roomsPage.getContent());
+    }
+
     @GetMapping
     public ResponseEntity<Page<Room>> getAllRooms(
             @RequestParam(defaultValue = "1") int page,
