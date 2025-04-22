@@ -1,7 +1,7 @@
 /* Home.css */
-.home-page {
-  margin-top: 75px; /* Учет высоты шапки */
-}
+/* .home-page {
+  margin-top: 75px; 
+} */
 
 /* Hero-секция на весь экран */
 .hero-fullscreen {
@@ -46,12 +46,12 @@
 }
 
 /* Основной контент */
-.main-content {
+/* .main-content {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding: 0 20px;
-}
+} */
 
 /* Остальные стили (features, gallery, cta) остаются без изменений из предыдущего решения */
 /* ... */

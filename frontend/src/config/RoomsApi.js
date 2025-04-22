@@ -1,9 +1,13 @@
 import apiClient from './apiClient';
 
 const RoomsApi = {
-  getAllRooms: async (page = 1, size = 9) => {
+  getAllRooms: async (page = 1, size = 9, title = '', minPrice = null, maxPrice = null) => {
     try {
-      const response = await apiClient.get(`/api/rooms?page=${page}&size=${size}`);
+      const params = { page, size };
+      if (title) params.title = title;
+      if (minPrice !== null) params.minPrice = minPrice;
+      if (maxPrice !== null) params.maxPrice = maxPrice;
+      const response = await apiClient.get('/api/rooms', { params });
       return response.data;
     } catch (error) {
       throw error;

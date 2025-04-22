@@ -2,17 +2,21 @@ package ru.flamexander.spring.security.jwt.service;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.flamexander.spring.security.jwt.dtos.BookingDto;
 import ru.flamexander.spring.security.jwt.dtos.ServiceDto;
 import ru.flamexander.spring.security.jwt.entities.Booking;
+import ru.flamexander.spring.security.jwt.entities.BookingTicket;
 import ru.flamexander.spring.security.jwt.entities.Room;
 import ru.flamexander.spring.security.jwt.entities.Services;
 import ru.flamexander.spring.security.jwt.entities.User;
 import ru.flamexander.spring.security.jwt.exceptions.ResourceNotFoundException;
 import ru.flamexander.spring.security.jwt.exceptions.RoomAlreadyBookedException;
 import ru.flamexander.spring.security.jwt.repositories.BookingRepository;
+import ru.flamexander.spring.security.jwt.repositories.BookingTicketRepository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,18 +28,27 @@ public class BookingService {
     private final ServiceService serviceService;
     private final ModelMapper modelMapper;
     private final RoomService roomService;
+    private final BookingTicketRepository bookingTicketRepository;
+    private final PdfService pdfService;
+    private final EmailService emailService;
 
     @Autowired
     public BookingService(BookingRepository bookingRepository,
                           UserService userService,
                           ServiceService serviceService,
                           ModelMapper modelMapper,
-                          RoomService roomService) {
+                          RoomService roomService,
+                          BookingTicketRepository bookingTicketRepository,
+                          PdfService pdfService,
+                          EmailService emailService) {
         this.bookingRepository = bookingRepository;
         this.userService = userService;
         this.serviceService = serviceService;
         this.modelMapper = modelMapper;
         this.roomService = roomService;
+        this.bookingTicketRepository = bookingTicketRepository;
+        this.pdfService = pdfService;
+        this.emailService = emailService;
     }
 
     public Booking createBooking(BookingDto bookingDto) {
@@ -47,12 +60,6 @@ public class BookingService {
         Optional<Room> roomOptional = roomService.getRoomById(bookingDto.getRoomId());
         Room room = roomOptional.orElseThrow(() -> new ResourceNotFoundException("Комната не найдена"));
 
-        // Проверка, что комната свободна
-        if (!"FREE".equals(room.getStatus())) {
-            throw new RoomAlreadyBookedException("Комната уже забронирована или недоступна");
-        }
-
-        // Проверка дат
         if (bookingDto.getCheckInDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Дата заезда не может быть в прошлом");
         }
@@ -73,14 +80,33 @@ public class BookingService {
         booking.setRoom(room);
         booking.setService(service);
 
-        // Сохранение бронирования
         Booking savedBooking = bookingRepository.save(booking);
 
-        // Обновление статуса комнаты на "BOOKED"
-        room.setStatus("BOOKED");
-        roomService.updateRoom(room);
+        // Создание BookingTicket
+        BookingTicket ticket = new BookingTicket();
+        ticket.setBoardingHouseName("ПАНСИОНАТ ЛЕСНЫЕ ДАЛИ");
+        ticket.setUserFullName(user.getFirstName() + " " + user.getLastName());
+        ticket.setRoomName(room.getRoomTitle());
+        ticket.setCheckInDate(booking.getCheckInDate());
+        ticket.setCheckOutDate(booking.getCheckOutDate());
+        ticket.setPrice(BigDecimal.valueOf(room.getPrice()));
+
+        bookingTicketRepository.save(ticket);
+
+        // Генерация PDF и отправка email в фоне
+        sendBookingTicketEmailAsync(ticket, user.getEmail());
 
         return savedBooking;
+    }
+
+    @Async
+    public void sendBookingTicketEmailAsync(BookingTicket ticket, String email) {
+        try {
+            byte[] pdf = pdfService.generatePdf(ticket);
+            emailService.sendBookingTicketEmail(email, pdf);
+        } catch (Exception e) {
+            System.err.println("Ошибка при отправке email: " + e.getMessage());
+        }
     }
 
     public Booking updateBooking(Booking booking) {
@@ -120,6 +146,10 @@ public class BookingService {
                 .toList();
     }
 
+    public List<Booking> getBookingsByRoom(Long roomId) {
+        return bookingRepository.findByRoom_RoomId(roomId);
+    }
+
     public boolean isRoomBooked(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
         List<Booking> bookings = bookingRepository.findAllByRoom_RoomIdAndCheckInDateGreaterThanEqualAndCheckOutDateLessThanEqual(
                 roomId, checkInDate.minusDays(1), checkOutDate.plusDays(1));
@@ -130,9 +160,6 @@ public class BookingService {
     public void deleteBooking(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Бронирование не найдено"));
-        Room room = booking.getRoom();
         bookingRepository.delete(booking);
-        room.setStatus("FREE");
-        roomService.updateRoom(room);
     }
 }

@@ -1,0 +1,5 @@
+.booked-date {
+  background-color: #ffcccc !important; /* Светло-красный фон для занятых дат */
+  color: #333 !important; /* Чёрный текст */
+  pointer-events: none; /* Отключает кликабельность */
+}

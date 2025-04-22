@@ -2,14 +2,14 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Header.css';
+import '../App.css';
 import useUserStore from '../store/UserStore';
+import logo from '/img/logo-dark.svg';
 
 
 const Header = () => {
   const navigate = useNavigate();
-  // Берем нужные данные из хранилища
   const { isAuth, user, isLoading, checkAuth, logout } = useUserStore();
-  // Проверяем авторизацию при загрузке
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
@@ -18,25 +18,22 @@ const Header = () => {
     try {
       await logout();
       if (!useUserStore.getState().isAuth) {
-        navigate('/login'); // Перенаправляем на страницу входа
+        navigate('/login');
       }
     } catch (error) {
       console.error('Ошибка при выходе:', error);
-      // Добавили уведомление пользователя об ошибке
       alert('Не удалось выйти. Попробуйте ещё раз.');
     }
   };
 
-  // Показываем заглушку при загрузке
   if (isLoading) {
     return <div className="header-loading">Загрузка...</div>;
   }
 
-  // components/Header.js
   return (
     <header className="header">
-      <div className="header-content">
-        <div className="logo">Логотип</div>
+      <div className="header-content container">
+        <div className="logo"><img src={logo} alt="Логотип" className="logo-image" /></div>
         <nav className="main-nav">
           <ul>
             <li><Link to="/">Главная</Link></li>

@@ -37,8 +37,10 @@ public class BookingController {
         try {
             Booking booking = bookingService.createBooking(bookingDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(booking);
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(null); // Комната уже забронирована
+        } catch (RoomAlreadyBookedException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -60,5 +62,10 @@ public class BookingController {
     @GetMapping("/user/{userId}")
     public List<Booking> getUserBookings(@PathVariable Long userId) {
         return bookingService.getUserBookings(userId);
+    }
+
+    @GetMapping("/room/{roomId}")
+    public List<Booking> getBookingsByRoom(@PathVariable Long roomId) {
+        return bookingService.getBookingsByRoom(roomId);
     }
 }

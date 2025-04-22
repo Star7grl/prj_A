@@ -26,10 +26,9 @@ public class RoomController {
         this.roomService = roomService;
     }
 
-    // Новый метод для получения трех комнат для главной страницы
     @GetMapping("/home")
     public ResponseEntity<List<Room>> getThreeRooms() {
-        Pageable pageable = PageRequest.of(0, 3); // Первая страница с 3 комнатами
+        Pageable pageable = PageRequest.of(0, 3);
         Page<Room> roomsPage = roomService.getAvailableRooms(pageable);
         return ResponseEntity.ok(roomsPage.getContent());
     }
@@ -37,9 +36,21 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<Page<Room>> getAllRooms(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "9") int size) {
+            @RequestParam(defaultValue = "9") int size,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Room> rooms = roomService.getAvailableRooms(pageable); // Используем фильтрацию
+        Page<Room> rooms;
+        if (title != null && !title.isEmpty() && minPrice != null && maxPrice != null) {
+            rooms = roomService.searchAndFilter(title, minPrice, maxPrice, pageable);
+        } else if (title != null && !title.isEmpty()) {
+            rooms = roomService.searchByTitle(title, pageable);
+        } else if (minPrice != null && maxPrice != null) {
+            rooms = roomService.filterByPrice(minPrice, maxPrice, pageable);
+        } else {
+            rooms = roomService.getAvailableRooms(pageable);
+        }
         return ResponseEntity.ok(rooms);
     }
 
@@ -48,7 +59,7 @@ public class RoomController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Room> rooms = roomService.getAllRooms(pageable); // Возвращаем все комнаты
+        Page<Room> rooms = roomService.getAllRooms(pageable);
         return ResponseEntity.ok(rooms);
     }
 
@@ -82,21 +93,5 @@ public class RoomController {
         }
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/searchTitle")
-    public ResponseEntity<List<Room>> searchRooms(@RequestParam(required = false) String title) {
-        if (title != null && !title.isEmpty()) {
-            return ResponseEntity.ok(roomService.searchByTitle(title));
-        }
-        return ResponseEntity.ok(roomService.getAllRooms());
-    }
-
-    @GetMapping("/searchPrice")
-    public ResponseEntity<List<Room>> searchRooms(
-            @RequestParam(required = false) String roomTitle,
-            @RequestParam(required = false, defaultValue = "0") double minPrice,
-            @RequestParam(required = false, defaultValue = "100000") double maxPrice) {
-        return ResponseEntity.ok(roomService.searchRooms(roomTitle, minPrice, maxPrice));
     }
 }

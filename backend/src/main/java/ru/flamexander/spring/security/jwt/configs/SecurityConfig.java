@@ -51,14 +51,19 @@ public class SecurityConfig {
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/services/**").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/rooms/update/**").hasRole("ADMIN")
                 .antMatchers("/private/**").authenticated()
                 .antMatchers("/api/auth/me").authenticated()
+                .antMatchers("/api/bookings/room/**").permitAll()
+                .antMatchers("/upload/**").authenticated()
                 .antMatchers("/api/users/profile/**").authenticated()
+                .antMatchers("/api/users/**").authenticated()
                 .antMatchers("/api/bookings/user/**").authenticated()
                 .antMatchers("/api/bookings/add").authenticated()
-                .antMatchers("/api/rooms/admin").permitAll() // Явно разрешаем доступ к /api/rooms/admin
-                .antMatchers("/api/rooms/**").permitAll()    // Разрешаем доступ ко всем /api/rooms/**
+                .antMatchers("/api/rooms/admin").permitAll()
+                .antMatchers("/api/rooms/**").permitAll()
                 .antMatchers("/api/rooms/add").hasRole("ADMIN")
+                .antMatchers("/ru/flamexander/spring/security/jwt/user_image/**").permitAll() // Доступ к фотографиям
                 .anyRequest().denyAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

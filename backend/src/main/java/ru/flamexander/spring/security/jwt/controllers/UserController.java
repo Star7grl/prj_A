@@ -7,9 +7,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.flamexander.spring.security.jwt.dtos.UserDto;
 import ru.flamexander.spring.security.jwt.entities.User;
 import ru.flamexander.spring.security.jwt.service.UserService;
+
+import java.io.IOException;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -36,29 +39,22 @@ public class UserController {
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
         boolean isDeleted = userService.deleteById(id);
         if (isDeleted) {
-            return ResponseEntity.noContent().build(); // Возвращаем 204 No Content, если удаление прошло успешно
+            return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.notFound().build(); // Возвращаем 404 Not Found, если пользователь не найден
+            return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/profile/{id}")
     public ResponseEntity<User> updateUserProfile(@PathVariable Long id, @RequestBody UserDto userDto) {
-        // Получаем текущего аутентифицированного пользователя
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
-
-        // Извлекаем пользователя из Optional
         User currentUser = userService.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         Long currentUserId = currentUser.getId();
-
-        // Проверяем, совпадает ли ID из запроса с ID текущего пользователя
         if (!currentUserId.equals(id)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // 403, если не совпадает
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-
-        // Обновляем профиль
         User updatedUser = userService.updateUserProfile(id, userDto.getFirstName(), userDto.getLastName());
         if (updatedUser != null) {
             return ResponseEntity.ok(updatedUser);
@@ -66,5 +62,21 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
-}
 
+    @PostMapping("/profile/{id}/uploadPhoto")
+    public ResponseEntity<User> uploadProfilePhoto(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User currentUser = userService.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        if (!currentUser.getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+        try {
+            User updatedUser = userService.uploadProfilePhoto(id, file);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+}

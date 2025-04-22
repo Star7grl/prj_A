@@ -14,7 +14,7 @@ const RoomsManagementPage = () => {
     description: '', 
     price: 0, 
     status: 'FREE', 
-    imageUrl: '' // Добавлено новое поле
+    imageUrl: '' 
   });
   const [editingRoom, setEditingRoom] = useState(null);
   const itemsPerPage = 10;
@@ -41,6 +41,29 @@ const RoomsManagementPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Валидация длины полей
+    if (formData.roomTitle.length > 255) {
+      alert('Название комнаты не должно превышать 255 символов');
+      return;
+    }
+    if (formData.roomType.length > 255) {
+      alert('Тип комнаты не должен превышать 255 символов');
+      return;
+    }
+    if (formData.description.length > 255) {
+      alert('Описание не должно превышать 255 символов');
+      return;
+    }
+    if (formData.status.length > 255) {
+      alert('Статус не должен превышать 255 символов');
+      return;
+    }
+    if (formData.imageUrl.length > 255) {
+      alert('URL изображения не должен превышать 255 символов');
+      return;
+    }
+
     try {
       const newRoom = await RoomsApi.createRoom(formData);
       setRooms([...rooms, newRoom]);
@@ -57,6 +80,29 @@ const RoomsManagementPage = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    // Валидация длины полей при редактировании
+    if (editingRoom.roomTitle.length > 255) {
+      alert('Название комнаты не должно превышать 255 символов');
+      return;
+    }
+    if (editingRoom.roomType.length > 255) {
+      alert('Тип комнаты не должен превышать 255 символов');
+      return;
+    }
+    if (editingRoom.description.length > 255) {
+      alert('Описание не должно превышать 255 символов');
+      return;
+    }
+    if (editingRoom.status.length > 255) {
+      alert('Статус не должен превышать 255 символов');
+      return;
+    }
+    if (editingRoom.imageUrl.length > 255) {
+      alert('URL изображения не должен превышать 255 символов');
+      return;
+    }
+
     try {
       const updatedRoom = await RoomsApi.updateRoom(editingRoom.roomId, editingRoom);
       setRooms(rooms.map((r) => (r.roomId === updatedRoom.roomId ? updatedRoom : r)));
@@ -88,6 +134,7 @@ const RoomsManagementPage = () => {
           onChange={handleInputChange}
           placeholder="Название комнаты"
           required
+          maxLength={255}
         />
         <input
           type="text"
@@ -96,6 +143,7 @@ const RoomsManagementPage = () => {
           onChange={handleInputChange}
           placeholder="Тип комнаты"
           required
+          maxLength={255}
         />
         <input
           type="text"
@@ -104,6 +152,7 @@ const RoomsManagementPage = () => {
           onChange={handleInputChange}
           placeholder="Описание"
           required
+          maxLength={255}
         />
         <input
           type="number"
@@ -124,6 +173,7 @@ const RoomsManagementPage = () => {
           value={formData.imageUrl}
           onChange={handleInputChange}
           placeholder="URL изображения"
+          maxLength={255}
         />
         <button type="submit">Добавить комнату</button>
       </form>
@@ -136,6 +186,7 @@ const RoomsManagementPage = () => {
             value={editingRoom.roomTitle}
             onChange={handleEditInputChange}
             required
+            maxLength={255}
           />
           <input
             type="text"
@@ -143,6 +194,7 @@ const RoomsManagementPage = () => {
             value={editingRoom.roomType}
             onChange={handleEditInputChange}
             required
+            maxLength={255}
           />
           <input
             type="text"
@@ -150,6 +202,7 @@ const RoomsManagementPage = () => {
             value={editingRoom.description}
             onChange={handleEditInputChange}
             required
+            maxLength={255}
           />
           <input
             type="number"
@@ -173,6 +226,7 @@ const RoomsManagementPage = () => {
             value={editingRoom.imageUrl}
             onChange={handleEditInputChange}
             placeholder="URL изображения"
+            maxLength={255}
           />
           <button type="submit">Сохранить изменения</button>
           <button type="button" onClick={() => setEditingRoom(null)}>Отмена</button>

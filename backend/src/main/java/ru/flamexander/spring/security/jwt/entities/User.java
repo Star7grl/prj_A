@@ -33,9 +33,12 @@ public class User {
     @Column(name = "lastName")
     private String lastName;
 
-    @Column(name = "resetToken") // Заменяем resetCode на resetToken
+    @Column(name = "resetToken")
     private String resetToken;
 
-    @Column(name = "resetTokenExpiry") // Добавляем срок действия токена
+    @Column(name = "resetTokenExpiry")
     private LocalDateTime resetTokenExpiry;
+
+    @Column(name = "photoPath") // Новое поле для пути к фотографии
+    private String photoPath;
 }

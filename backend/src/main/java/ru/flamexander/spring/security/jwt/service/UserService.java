@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.flamexander.spring.security.jwt.configs.CustomUserDetails;
 import ru.flamexander.spring.security.jwt.dtos.RegistrationUserDto;
 import ru.flamexander.spring.security.jwt.entities.Role;
@@ -15,6 +16,10 @@ import ru.flamexander.spring.security.jwt.entities.User;
 import ru.flamexander.spring.security.jwt.repositories.UserRepository;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,6 +43,9 @@ public class UserService implements UserDetailsService {
     @Value("${admin.role}")
     private String adminRole;
 
+    @Value("${upload.path}")
+    private String uploadPath;
+
     @Autowired
     public UserService(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
@@ -52,7 +60,7 @@ public class UserService implements UserDetailsService {
             User admin = new User();
             admin.setUsername(adminUsername);
             admin.setEmail(adminEmail);
-            admin.setPassword(adminPassword); // Пароль уже захеширован в properties
+            admin.setPassword(adminPassword);
 
             Role adminRoleEntity = roleService.findByName(adminRole)
                     .orElseThrow(() -> new RuntimeException("Роль администратора не найдена"));
@@ -122,14 +130,39 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
-    // Методы для восстановления пароля через токен
+    @Transactional
+    public User uploadProfilePhoto(Long userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        // Проверка, является ли файл изображением
+        String contentType = file.getContentType();
+        if (!contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Файл должен быть изображением (jpeg, jpg, png и т.д.)");
+        }
+
+        // Генерация уникального имени файла
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadPath, fileName);
+
+        // Создание директории, если она не существует
+        Files.createDirectories(filePath.getParent());
+
+        // Сохранение файла
+        Files.write(filePath, file.getBytes());
+
+        // Обновление пути к фотографии
+        user.setPhotoPath(fileName);
+        return userRepository.save(user); // Возвращаем обновлённого пользователя
+    }
+
     public boolean sendResetToken(String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             String token = UUID.randomUUID().toString();
             user.setResetToken(token);
-            user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(10)); // Срок действия 10 минут
+            user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(10));
             userRepository.save(user);
             emailService.sendResetLink(email, token);
             return true;
@@ -152,7 +185,7 @@ public class UserService implements UserDetailsService {
             User user = optionalUser.get();
             if (user.getResetTokenExpiry() != null && user.getResetTokenExpiry().isAfter(LocalDateTime.now())) {
                 user.setPassword(passwordEncoder.encode(newPassword));
-                user.setResetToken(null); // Очищаем токен после использования
+                user.setResetToken(null);
                 user.setResetTokenExpiry(null);
                 userRepository.save(user);
             } else {

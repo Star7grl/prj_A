@@ -10,12 +10,7 @@ const RoomCard = ({ room }) => {
       </Link>
       <p>{room.description}</p>
       <p>Цена: {room.price} руб.</p>
-      {room.status === 'FREE' && (
-        <Link to={`/booking/${room.roomId}`} className="book-btn">Забронировать</Link>
-      )}
-      {room.status === 'BOOKED' && (
-        <button disabled>Забронировано</button>
-      )}
+      <Link to={`/booking/${room.roomId}`} className="book-btn">Забронировать</Link>
     </div>
   );
 };

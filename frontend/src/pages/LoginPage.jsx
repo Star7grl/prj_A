@@ -71,7 +71,7 @@ const LoginPage = () => {
               Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
             </div>
             <div className="forgot-password-link">
-              <Link to="/forgot-password">Забыл пароль?</Link>
+              Забыли пароль? <Link to="/forgot-password">Восстановить</Link>
             </div>
           </form>
         </div>

@@ -34,19 +34,25 @@ public class RoomService {
     }
 
     public Room createRoom(RoomDto roomDto) {
+        System.out.println("roomTitle length: " + (roomDto.getRoomTitle() != null ? roomDto.getRoomTitle().length() : 0));
+        System.out.println("roomType length: " + (roomDto.getRoomType() != null ? roomDto.getRoomType().length() : 0));
+        System.out.println("description length: " + (roomDto.getDescription() != null ? roomDto.getDescription().length() : 0));
+        System.out.println("status length: " + (roomDto.getStatus() != null ? roomDto.getStatus().length() : 0));
+        System.out.println("imageUrl length: " + (roomDto.getImageUrl() != null ? roomDto.getImageUrl().length() : 0));
+
         Room room = new Room();
         room.setRoomTitle(roomDto.getRoomTitle());
         room.setRoomType(roomDto.getRoomType());
         room.setDescription(roomDto.getDescription());
         room.setPrice(roomDto.getPrice());
         room.setStatus(roomDto.getStatus());
-        room.setImageUrl(roomDto.getImageUrl()); // Сохранение URL изображения
+        room.setImageUrl(roomDto.getImageUrl());
         return roomRepository.save(room);
     }
 
     @Transactional
     public Room updateRoom(Room room) {
-        return roomRepository.save(room); // Обновление комнаты, включая статус
+        return roomRepository.save(room);
     }
 
     @Transactional
@@ -58,7 +64,7 @@ public class RoomService {
         room.setDescription(roomDto.getDescription());
         room.setPrice(roomDto.getPrice());
         room.setStatus(roomDto.getStatus());
-        room.setImageUrl(roomDto.getImageUrl()); // Обновление URL изображения
+        room.setImageUrl(roomDto.getImageUrl());
         return roomRepository.save(room);
     }
 
@@ -67,16 +73,21 @@ public class RoomService {
         roomRepository.deleteById(id);
     }
 
-    public List<Room> searchByTitle(String roomTitle) {
-        return roomRepository.findByRoomTitleContainingIgnoreCase(roomTitle);
+    // Поиск по названию с пагинацией
+    public Page<Room> searchByTitle(String roomTitle, Pageable pageable) {
+        return roomRepository.findByRoomTitleContainingIgnoreCase(roomTitle, pageable);
     }
 
-    public List<Room> searchRooms(String roomTitle, double minPrice, double maxPrice) {
-        if (roomTitle != null && !roomTitle.isEmpty()) {
-            return roomRepository.findByRoomTitleContainingAndPriceBetween(roomTitle, minPrice, maxPrice);
-        } else {
-            return roomRepository.findByPriceBetween(minPrice, maxPrice);
-        }
+    // Фильтрация по цене с пагинацией
+    public Page<Room> filterByPrice(double minPrice, double maxPrice, Pageable pageable) {
+        return roomRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+    }
+
+    // Комбинированный поиск по названию и цене с пагинацией
+    public Page<Room> searchAndFilter(String roomTitle, double minPrice, double maxPrice, Pageable pageable) {
+        return roomRepository.findByRoomTitleContainingIgnoreCaseAndPriceBetween(
+                roomTitle, minPrice, maxPrice, pageable
+        );
     }
 
     public Page<Room> getAvailableRooms(Pageable pageable) {

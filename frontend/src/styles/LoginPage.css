@@ -89,13 +89,18 @@
   font-size: 14px;
 }
 
-.register-link a {
+.forgot-password-link {
+  color: #666;
+  font-size: 14px;
+}
+
+.register-link a, .forgot-password-link a {
   color: #3498db;
   text-decoration: none;
   font-weight: 500;
 }
 
-.register-link a:hover {
+.register-link a:hover, .forgot-password-link a:hover {
   text-decoration: underline;
 }
 

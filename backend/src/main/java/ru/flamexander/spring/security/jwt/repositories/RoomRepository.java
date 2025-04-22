@@ -11,10 +11,18 @@ import java.util.List;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByRoomType(String roomType);
-    List<Room> findByRoomTitleContainingIgnoreCase(String roomTitle);
-    List<Room> findByRoomTitleContainingAndPriceBetween(String roomTitle, double minPrice, double maxPrice);
-    List<Room> findByPriceBetween(double minPrice, double maxPrice);
 
-    // Новый метод для исключения комнат с определенным статусом
+    // Поиск по названию (игнорируя регистр) с пагинацией
+    Page<Room> findByRoomTitleContainingIgnoreCase(String roomTitle, Pageable pageable);
+
+    // Фильтрация по цене с пагинацией
+    Page<Room> findByPriceBetween(double minPrice, double maxPrice, Pageable pageable);
+
+    // Комбинированный поиск по названию и цене с пагинацией
+    Page<Room> findByRoomTitleContainingIgnoreCaseAndPriceBetween(
+            String roomTitle, double minPrice, double maxPrice, Pageable pageable
+    );
+
+    // Исключение комнат с определённым статусом
     Page<Room> findByStatusNot(String status, Pageable pageable);
 }
