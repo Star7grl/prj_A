@@ -44,13 +44,9 @@ const Home = () => {
                 <div className="card-text">
                   <div className="card-title">
                     <h3>{room.roomTitle}</h3>
-                    <div className="rating">
-                      <img src="/img/star-icon.png" alt="Рейтинг" />
-                      <p>5.0</p>
-                    </div>
                   </div>
                   <p>{room.description}</p>
-                  <p className="card-text__price">от <span>{room.price}</span> руб/сутки</p>
+                  <p className="card-text__price"><span>{room.price}</span> руб/сутки</p>
                 </div>
                 <Link to={`/rooms/${room.roomId}`} className="card-btn">ЗАБРОНИРОВАТЬ</Link>
               </div>
@@ -112,11 +108,11 @@ const Home = () => {
             </div>
             <div className="tel point">
               <img src="/img/phone.svg" alt="Телефон" />
-              <p>8 (951) 893-46-59</p>
+              <p>8 8553 54 33 32</p>
             </div>
             <div className="mail point">
               <img src="/img/mail.svg" alt="Почта" />
-              <p>lesnaya_dolina@mail.com</p>
+              <p>lesnaya_dolina@gmail.com</p>
             </div>
           </div>
         </div>

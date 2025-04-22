@@ -30,7 +30,7 @@ const RegisterPage = () => {
       // Используем метод register из UserStore
       await register(formData);
       
-      alert('Регистрация прошла успешно! Теперь вы можете войти.');
+      // alert('Регистрация прошла успешно! Теперь вы можете войти.');
       navigate('/login');
     } catch (error) {
       if (error.response) {

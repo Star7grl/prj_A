@@ -1,4 +1,4 @@
-// components/Header.js
+// components/Header.jsx
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Header.css';
@@ -22,7 +22,7 @@ const Header = () => {
       }
     } catch (error) {
       console.error('Ошибка при выходе:', error);
-      alert('Не удалось выйти. Попробуйте ещё раз.');
+      // alert('Не удалось выйти. Попробуйте ещё раз.');
     }
   };
 

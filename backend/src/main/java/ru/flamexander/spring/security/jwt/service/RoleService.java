@@ -1,21 +1,16 @@
 package ru.flamexander.spring.security.jwt.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.flamexander.spring.security.jwt.entities.Role;
-import ru.flamexander.spring.security.jwt.entities.User;
 import ru.flamexander.spring.security.jwt.exceptions.ResourceNotFoundException;
 import ru.flamexander.spring.security.jwt.repositories.RoleRepository;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
-import java.util.Optional;
 
-@Service // Аннотация, обозначающая, что это сервис Spring
+@Service
 public class RoleService {
 
     private final RoleRepository roleRepository;
@@ -40,7 +35,6 @@ public class RoleService {
         }
     }
 
-    // Добавляем метод getUserRole()
     public Role getUserRole() {
         return roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Роль пользователя по умолчанию не найдена"));
@@ -51,9 +45,6 @@ public class RoleService {
                 .orElseThrow(() -> new RuntimeException("Роль админа не найдена"));
     }
 
-
-
-    // Остальные методы остаются без изменений
     public Iterable<Role> getAllRoles() {
         return roleRepository.findAll();
     }
@@ -62,14 +53,12 @@ public class RoleService {
         return roleRepository.findById(id);
     }
 
-
-
-    public Role createRole(Role role) { // Создание новой роли
-        return roleRepository.save(role); // Использование метода save() из JpaRepository для сохранения
+    public Role createRole(Role role) {
+        return roleRepository.save(role);
     }
 
-    public Role updateRole(Role role) { // Обновление роли
-        return roleRepository.save(role); // Использование метода save() для обновления (ID должен быть установлен)
+    public Role updateRole(Role role) {
+        return roleRepository.save(role);
     }
 
     public void deleteRole(Integer id) {
@@ -81,16 +70,4 @@ public class RoleService {
     public Optional<Role> findByName(String name) {
         return roleRepository.findByName(name);
     }
-
-
 }
-
-//@Service
-//@RequiredArgsConstructor
-//public class RoleService {
-//    private final RoleRepository roleRepository;
-//
-//    public Role getUserRole() {
-//        return roleRepository.findByName("ROLE_USER").get();
-//    }
-//}

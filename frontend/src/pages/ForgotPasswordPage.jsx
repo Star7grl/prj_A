@@ -16,11 +16,11 @@ const ForgotPasswordPage = () => {
     try {
       const response = await apiClient.post('/api/auth/forgot-password', { email });
       if (response.status === 200) {
-        alert('Ссылка для сброса пароля отправлена на вашу почту');
+        // alert('Ссылка для сброса пароля отправлена на вашу почту');
         navigate('/login');
       }
     } catch (error) {
-      alert('Ошибка: ' + (error.response?.data || 'Неизвестная ошибка'));
+      // alert('Ошибка: ' + (error.response?.data || 'Неизвестная ошибка'));
     }
   };
 

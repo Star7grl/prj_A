@@ -29,7 +29,7 @@ const PaymentPage = () => {
       return;
     }
 
-    alert('Оплата прошла успешно!');
+    // alert('Оплата прошла успешно!');
 
     try {
       await BookingsApi.createBooking({
@@ -38,11 +38,10 @@ const PaymentPage = () => {
         checkInDate,
         checkOutDate,
       });
-      alert('Бронирование успешно');
+      // alert('Бронирование успешно');
       navigate('/profile');
     } catch (error) {
       console.error('Ошибка при бронировании:', error);
-      alert('Не удалось забронировать комнату');
     }
   };
 

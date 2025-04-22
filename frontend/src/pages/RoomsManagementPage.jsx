@@ -44,23 +44,23 @@ const RoomsManagementPage = () => {
 
     // Валидация длины полей
     if (formData.roomTitle.length > 255) {
-      alert('Название комнаты не должно превышать 255 символов');
+      // alert('Название комнаты не должно превышать 255 символов');
       return;
     }
     if (formData.roomType.length > 255) {
-      alert('Тип комнаты не должен превышать 255 символов');
+      // alert('Тип комнаты не должен превышать 255 символов');
       return;
     }
     if (formData.description.length > 255) {
-      alert('Описание не должно превышать 255 символов');
+      // alert('Описание не должно превышать 255 символов');
       return;
     }
     if (formData.status.length > 255) {
-      alert('Статус не должен превышать 255 символов');
+      // alert('Статус не должен превышать 255 символов');
       return;
     }
     if (formData.imageUrl.length > 255) {
-      alert('URL изображения не должен превышать 255 символов');
+      // alert('URL изображения не должен превышать 255 символов');
       return;
     }
 
@@ -83,23 +83,23 @@ const RoomsManagementPage = () => {
 
     // Валидация длины полей при редактировании
     if (editingRoom.roomTitle.length > 255) {
-      alert('Название комнаты не должно превышать 255 символов');
+      // alert('Название комнаты не должно превышать 255 символов');
       return;
     }
     if (editingRoom.roomType.length > 255) {
-      alert('Тип комнаты не должен превышать 255 символов');
+      // alert('Тип комнаты не должен превышать 255 символов');
       return;
     }
     if (editingRoom.description.length > 255) {
-      alert('Описание не должно превышать 255 символов');
+      // alert('Описание не должно превышать 255 символов');
       return;
     }
     if (editingRoom.status.length > 255) {
-      alert('Статус не должен превышать 255 символов');
+      // alert('Статус не должен превышать 255 символов');
       return;
     }
     if (editingRoom.imageUrl.length > 255) {
-      alert('URL изображения не должен превышать 255 символов');
+      // alert('URL изображения не должен превышать 255 символов');
       return;
     }
 

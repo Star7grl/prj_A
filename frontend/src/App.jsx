@@ -14,6 +14,7 @@ import RoomDetailPage from './pages/RoomDetailPage';
 import BookingPage from './pages/BookingPage';
 import PaymentPage from './pages/PaymentPage';
 import Header from './components/Header';
+import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
@@ -44,6 +45,7 @@ const App = () => {
           {/* Перенаправление на главную для неизвестных маршрутов */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        <Footer />
       </Router>
   );
 };
